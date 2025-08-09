@@ -1,0 +1,27 @@
+openapi: 3.0.0
+info:
+  title: Real Estate API
+  version: 1.0.0
+  description: API documentation for Real Estate platform
+servers:
+  - url: http://localhost:3000
+paths:
+  /properties:
+    get:
+      summary: Get all properties
+      tags:
+        - Properties
+      responses:
+        '200':
+          description: A list of properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    title:
+                      type: string
