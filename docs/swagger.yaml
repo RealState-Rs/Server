@@ -1,27 +1,76 @@
 openapi: 3.0.0
 info:
-  title: Real Estate API
+  title: Real Estate APIs
   version: 1.0.0
   description: API documentation for Real Estate platform
 servers:
-  - url: http://localhost:3000
+  - url: SERVER_BASE_URL_PLACEHOLDER
 paths:
-  /properties:
-    get:
-      summary: Get all properties
+  /auth/register:
+    post:
+      summary: Register a new user
       tags:
-        - Properties
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - firstName
+                - lastName
+                - userEmail
+                - password
+              properties:
+                firstName:
+                  type: string
+                  example: John
+                lastName:
+                  type: string
+                  example: Doe
+                userEmail:
+                  type: string
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  example: Passw0rd!
+                userPhoneNumber:
+                  type: string
+                  example: "+123456789"
+                nationalIdNumber:
+                  type: string
+                  example: "30303521400797"
       responses:
-        '200':
-          description: A list of properties
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    title:
-                      type: string
+        "201":
+          description: User registered successfully
+        "400":
+          description: Invalid input or already exists
+  /auth/login:
+    post:
+      summary: Login a user
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userEmail
+                - password
+              properties:
+                userEmail:
+                  type: string
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  example: Passw0rd!
+      responses:
+        "200":
+          description: Login successful
+        "401":
+          description: Invalid credentials
