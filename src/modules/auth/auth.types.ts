@@ -14,3 +14,11 @@ export interface LoginDTO {
   userEmail: string;
   password: string;
 }
+export interface forgetPasswordDTO {
+  userEmail : string;
+}
+export interface resetPasswordDTO {
+  resetCode : string;
+  newPassword : string;
+  userEmail : string;
+}

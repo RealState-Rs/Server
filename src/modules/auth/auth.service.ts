@@ -1,25 +1,40 @@
+// src/modules/auth/auth.service.ts
 import { prisma } from "../../config/db";
 import bcrypt from "bcrypt";
-import jwt, { SignOptions } from "jsonwebtoken";
-import { RegisterDTO, LoginDTO } from "./auth.types";
 
-const JWT_SECRET = process.env.JWT_SECRET || "dev_secret";
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
+import {
+    RegisterDTO,
+    LoginDTO,
+    forgetPasswordDTO,
+    resetPasswordDTO,
+} from "./auth.types";
+import AppError from "../../utils/AppError";
+import { sendEmailTemplate } from "../../config/sendMail";
+import { generateToken } from "../../Helpers/generateToken";
+import { hashPassword } from "../../Helpers/hashPassword";
 
+const sanitizeUser = (user: any) => {
+    const { userHashedPassword, resetCode, resetCodeExpiry, ...safe } = user;
+    return safe;
+};
+
+// ===== Services =====
 export const register = async (data: RegisterDTO) => {
-    // Check existing email or nationalIdNumber uniqueness
+    // Check for existing user
     const existing = await prisma.user.findFirst({
         where: {
             OR: [
                 { userEmail: data.userEmail },
-                data.nationalIdNumber ? { nationalIdNumber: data.nationalIdNumber } : undefined,
+                data.nationalIdNumber
+                    ? { nationalIdNumber: data.nationalIdNumber }
+                    : undefined,
             ].filter(Boolean) as any[],
         },
     });
 
-    if (existing) throw new Error("Email or national ID already registered");
+    if (existing) throw new AppError("Email or national ID already registered", 400);
 
-    const hashed = await bcrypt.hash(data.password, 10);
+    const hashed = await hashPassword(data.password);
 
     const user = await prisma.user.create({
         data: {
@@ -35,18 +50,10 @@ export const register = async (data: RegisterDTO) => {
         },
     });
 
-    const token = jwt.sign(
-        { userId: user.id, role: user.role },
-        JWT_SECRET as jwt.Secret,
-        { expiresIn: JWT_EXPIRES_IN } as SignOptions
-    );
-
-    // strip password before returning
-    // (prisma returns the fields; but we don't include userHashedPassword)
-    // You can return selected fields instead
-    const { userHashedPassword, ...safeUser } = (user as any);
-
-    return { user: safeUser, token };
+    return {
+        user: sanitizeUser(user),
+        token: generateToken({ id: user.id, role: user.role }),
+    };
 };
 
 export const login = async (data: LoginDTO) => {
@@ -54,16 +61,66 @@ export const login = async (data: LoginDTO) => {
         where: { userEmail: data.userEmail },
     });
 
-    if (!user) throw new Error("Invalid credentials");
+    if (!user || !(await bcrypt.compare(data.password, user.userHashedPassword))) {
+        throw new AppError("Invalid credentials", 401);
+    }
 
-    const valid = await bcrypt.compare(data.password, user.userHashedPassword);
-    if (!valid) throw new Error("Invalid credentials");
+    return {
+        user: sanitizeUser(user),
+        token: generateToken({ id: user.id, role: user.role }),
+    };
+};
 
-    const token = jwt.sign(
-        { userId: user.id, role: user.role },
-        JWT_SECRET as jwt.Secret,
-        { expiresIn: JWT_EXPIRES_IN } as SignOptions
-    );
-    const { userHashedPassword, ...safeUser } = (user as any);
-    return { user: safeUser, token };
+export const forgetPassword = async (data: forgetPasswordDTO) => {
+    const user = await prisma.user.findUnique({
+        where: { userEmail: data.userEmail },
+    });
+
+    if (!user) throw new AppError("User not found", 404);
+
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiryMinutes = 15;
+
+    await prisma.user.update({
+        where: { id: user.id },
+        data: {
+            resetCode,
+            resetCodeExpiry: new Date(Date.now() + expiryMinutes * 60 * 1000),
+        },
+    });
+
+    await sendEmailTemplate(user.userEmail, "Reset Password Code", "resetPassword", {
+        name: user.firstName,
+        resetCode,
+        expiryMinutes,
+    });
+
+    return { message: "Password reset code sent to your email" };
+};
+
+export const resetPassword = async (data: resetPasswordDTO) => {
+    const user = await prisma.user.findUnique({
+        where: { userEmail: data.userEmail },
+    });
+
+    if (!user || !user.resetCodeExpiry || user.resetCode !== data.resetCode) {
+        throw new AppError("Invalid or expired reset code", 400);
+    }
+    if (user.resetCodeExpiry < new Date()) {
+        throw new AppError("Reset code has expired", 400);
+    }
+
+
+    const hashed = await hashPassword(data.newPassword);
+
+    await prisma.user.update({
+        where: { id: user.id },
+        data: {
+            userHashedPassword: hashed,
+            resetCode: null,
+            resetCodeExpiry: null,
+        },
+    });
+
+    return { message: "Password updated successfully" };
 };

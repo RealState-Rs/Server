@@ -16,3 +16,11 @@ export const loginSchema = z.object({
   userEmail: z.string().email(),
   password: z.string().min(6),
 });
+export const forgetPasswordSchema = z.object({
+  userEmail : z.string().email()
+});
+export const resetPasswordSchema = z.object({
+  resetCode : z.string(),
+  newPassword : z.string().min(6),
+  userEmail : z.string().email()
+})

@@ -47,6 +47,7 @@ paths:
           description: User registered successfully
         "400":
           description: Invalid input or already exists
+
   /auth/login:
     post:
       summary: Login a user
@@ -74,3 +75,115 @@ paths:
           description: Login successful
         "401":
           description: Invalid credentials
+
+  /auth/forget-password:
+    post:
+      summary: Request a password reset code
+      description: Sends a 6-digit reset code to the user's email if the account exists.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userEmail
+              properties:
+                userEmail:
+                  type: string
+                  format: email
+                  example: user@example.com
+      responses:
+        '200':
+          description: Reset code sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Password reset link sent to your email check it now!
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User not found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error
+  /auth/reset-password:
+    post:
+      tags:
+        - Auth
+      summary: Reset user password
+      description: >
+        Allows a user to reset their password using a valid reset code sent to their email.  
+        The reset code must match and be unexpired.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userEmail
+                - resetCode
+                - newPassword
+              properties:
+                userEmail:
+                  type: string
+                  format: email
+                  example: user@example.com
+                resetCode:
+                  type: string
+                  example: "123456"
+                newPassword:
+                  type: string
+                  format: password
+                  example: StrongP@ssw0rd
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Password updated successfully
+        '400':
+          description: Invalid or expired reset code
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid or expired reset code
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User not found
