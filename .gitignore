@@ -1,9 +1,4 @@
-# Environment variables
 .env
-
-
 node_modules/
-
-generated/
-
 logs/
+generated/

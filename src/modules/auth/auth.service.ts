@@ -1,4 +1,3 @@
-// src/modules/auth/auth.service.ts
 import { prisma } from "../../config/db";
 import bcrypt from "bcrypt";
 
@@ -20,7 +19,6 @@ const sanitizeUser = (user: any) => {
 
 // ===== Services =====
 export const register = async (data: RegisterDTO) => {
-    // Check for existing user
     const existing = await prisma.user.findFirst({
         where: {
             OR: [

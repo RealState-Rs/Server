@@ -14,6 +14,6 @@ app.use(cors());
 app.use(express.json());
 app.use(requestLogger); 
 setupSwagger(app);
+Bootstrap(app);
 app.use(errorHandler);
-Bootstrap(app)
 export default app;
