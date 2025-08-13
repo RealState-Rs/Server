@@ -53,3 +53,37 @@ export const getAllUsers = async (query: Record<string, any>) => {
     );
   }
 };
+export const getUserProfile = async (userId: number) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,   
+        userEmail: true,
+        role: true,
+        firstName: true,
+        lastName: true,
+        nationalIdFront: true,
+        nationalIdBack: true,
+        createdAt: true,
+      },
+    }); 
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+    return user;
+  } catch (error: any) {
+    console.error("Error fetching user profile:", error);
+    throw new AppError(
+      error.message || "Failed to fetch user profile from database",
+      500
+    );
+  }
+};
+
+
+// block user (get the userId , action  from the body  , update on prisma the role to blocked , return a message that the user is blocked)
+// update user profile
+
+
+

@@ -10,3 +10,13 @@ export const getAllUsers = async (req: Request, res: Response) => {
         return new AppError("Error", 500);
     }
 }
+// 
+export const getUserProfile = async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id; 
+        const userProfile = await userServices.getUserProfile(userId);
+        return res.json(formatResponse(true, "User profile fetched successfully", userProfile));
+    } catch (error) {
+        return new AppError("Error fetching user profile", 500);
+    }
+};

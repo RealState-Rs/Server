@@ -62,7 +62,9 @@ export const login = async (data: LoginDTO) => {
     if (!user || !(await bcrypt.compare(data.password, user.userHashedPassword))) {
         throw new AppError("Invalid credentials", 401);
     }
-
+    if (user.role === "BLOCKED") {
+        throw new AppError("User is blocked", 401);
+    }
     return {
         user: sanitizeUser(user),
         token: generateToken({ id: user.id, role: user.role }),

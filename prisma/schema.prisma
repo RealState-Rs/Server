@@ -20,6 +20,7 @@ enum Role {
   SELLER
   BUYER
   UN_VERIFIEDUSER
+  BLOCKED
 }
 
 model User {
