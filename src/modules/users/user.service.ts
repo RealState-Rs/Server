@@ -1,7 +1,7 @@
-import tr from "zod/v4/locales/tr.cjs";
 import { prisma } from "../../config/db";
 import AppError from "../../utils/AppError";
 import { buildPrismaQuery } from "../../utils/prismaQueryBuilder";
+import { Role } from "./user.types";
 
 
 export const getAllUsers = async (query: Record<string, any>) => {
@@ -110,8 +110,37 @@ export const updateUserProfile = async (userId: number, data: any) => {
 
 }
 
-// block user (get the userId , action  from the body  , update on prisma the role to blocked , return a message that the user is blocked)
-// update user profile
+export const blockUser = async (userId: number) => {
+   try {
+   
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, role: true, userEmail: true, firstName: true, lastName: true, createdAt: true },
+    });
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+   
+    const newRole = user.role === "BLOCKED" ? "UN_VERIFIEDUSER" : "BLOCKED";
+
+    // Update the user role
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { role: newRole },
+      select: { id: true, userEmail: true, role: true, firstName: true, lastName: true, createdAt: true },
+    });
+
+    return {
+      message: newRole === "BLOCKED" ? "User blocked successfully" : "User unblocked successfully",
+      user: updatedUser,
+    };
+  } catch (error: any) {
+    console.error("Error toggling user block:", error);
+    throw new AppError(error.message || "Failed to toggle user block", 500);
+  }
+};
 
 
 
