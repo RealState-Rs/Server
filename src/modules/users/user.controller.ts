@@ -20,3 +20,13 @@ export const getUserProfile = async (req: Request, res: Response) => {
         return new AppError("Error fetching user profile", 500);
     }
 };
+export const updateUserProfile = async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id; 
+        const updatedData = req.body;
+        const updatedUser = await userServices.updateUserProfile(userId, updatedData);
+        return res.json(formatResponse(true, "User profile updated successfully", updatedUser));
+    } catch (error) {
+        return new AppError("Error updating user profile", 500);
+    }
+};

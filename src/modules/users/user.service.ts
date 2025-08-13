@@ -1,3 +1,4 @@
+import tr from "zod/v4/locales/tr.cjs";
 import { prisma } from "../../config/db";
 import AppError from "../../utils/AppError";
 import { buildPrismaQuery } from "../../utils/prismaQueryBuilder";
@@ -80,7 +81,34 @@ export const getUserProfile = async (userId: number) => {
     );
   }
 };
+export const updateUserProfile = async (userId: number, data: any) => {
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data,
+      select: {
+       
+        userEmail: true,
+       
+        firstName: true,
+        lastName: true,
+      
+        createdAt: true,
+      },
+    });
+    return updatedUser;
+  } catch (error: any) {
+    console.error("Error updating user profile:", error);
+    throw new AppError(
+      error.message || "Failed to update user profile",
+      500
+    );
+  }
 
+
+
+
+}
 
 // block user (get the userId , action  from the body  , update on prisma the role to blocked , return a message that the user is blocked)
 // update user profile
