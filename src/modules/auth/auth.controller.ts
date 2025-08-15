@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import * as AuthService from "./auth.service";
-import { registerSchema, loginSchema, forgetPasswordSchema, resetPasswordSchema } from "./auth.validators";
+import { registerSchema, loginSchema, forgetPasswordSchema, resetPasswordSchema, nationalIdUploadSchema } from "./auth.validators";
 import AppError from "../../utils/AppError";
 
 export const register = async (req: Request, res: Response) => {
@@ -39,4 +39,32 @@ export const resetPassword = async (req: Request, res: Response) => {
   } catch (error) {
     return new AppError("Error", 500)
   }
-}
+};
+
+export const uploadNationalId = async (req: Request, res: Response) => {
+  try {
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+    if (!files?.nationalIdFront?.length || !files?.nationalIdBack?.length) {
+      throw new AppError("Both front and back images are required", 400);
+    }
+
+    const frontFile = files.nationalIdFront[0];
+    const backFile = files.nationalIdBack[0];
+
+    const validated = nationalIdUploadSchema.parse({
+      userEmail: req.body.userEmail,
+      nationalIdNumber: req.body.nationalIdNumber,
+      nationalIdFront: `/uploads/verifications/${frontFile.filename}`,
+      nationalIdBack: `/uploads/verifications/${backFile.filename}`,
+    });
+
+    const result = await AuthService.uploadNationalId(validated);
+    return res.status(201).json({
+      message: "National ID submitted for verification",
+      data: result,
+    });
+  } catch (error: any) {
+    return res.status(400).json({ error: error.message || "National ID upload failed" });
+  }
+};

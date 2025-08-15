@@ -1,0 +1,85 @@
+post:
+  tags:
+    - Auth
+  summary: Upload National ID (Front and Back)
+  description: Upload two images (front and back) of a user's national ID for verification. The uploaded files will be stored and linked to a new `nationalIdValidation` record for admin review.
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          required:
+            - userEmail
+            - nationalIdFront
+            - nationalIdBack
+            - nationalIdNumber
+          properties:
+            nationalIdNumber:
+              type: string
+              description: Id Number of the user whose ID is being uploaded.
+            userEmail:
+              type: string
+              format: email
+              example: user@example.com
+              description: Email of the user whose ID is being uploaded.
+            nationalIdFront:
+              type: string
+              format: binary
+              description: Front image of the national ID.
+            nationalIdBack:
+              type: string
+              format: binary
+              description: Back image of the national ID.
+  responses:
+    "200":
+      description: National ID uploaded successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: National ID uploaded successfully
+              validation:
+                type: object
+                description: Created nationalIdValidation record
+                properties:
+                  id:
+                    type: string
+                    example: 5f8d0d55b54764421b7156c5
+                  userEmail:
+                    type: string
+                  nationalIdNumber:
+                    type: string
+                  nationalIdFront:
+                    type: string
+                    example: https://cdn.example.com/uploads/nationalIds/front.jpg
+                  nationalIdBack:
+                    type: string
+                    example: https://cdn.example.com/uploads/nationalIds/back.jpg
+                  status:
+                    type: string
+                    enum: [PENDING, APPROVED, REJECTED]
+                    example: PENDING
+    "400":
+      description: Validation error or missing files
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Both front and back images are required
+    "404":
+      description: User not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: User Not Found

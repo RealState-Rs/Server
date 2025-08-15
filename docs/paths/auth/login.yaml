@@ -1,0 +1,26 @@
+post:
+  summary: Login a user
+  tags:
+    - Auth
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - userEmail
+            - password
+          properties:
+            userEmail:
+              type: string
+              example: john@example.com
+            password:
+              type: string
+              format: password
+              example: Passw0rd!
+  responses:
+    "200":
+      description: Login successful
+    "401":
+      description: Invalid credentials

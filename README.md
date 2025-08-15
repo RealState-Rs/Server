@@ -2,9 +2,9 @@
 
 ![Node Version](https://img.shields.io/badge/node-v22.18.0-green)
 ![License](https://img.shields.io/badge/license-ISC-blue)
-![Updated](https://img.shields.io/badge/last_updated-2025-08-10-orange)
+![Updated](https://img.shields.io/badge/last_updated-2025-08-15-orange)
 
-> A Real State Server side
+> RS Project Server
 
 
 
@@ -18,6 +18,7 @@
 - tsconfig.json
 
 ## 📦 Dependencies
+- @apidevtools/swagger-parser
 - @prisma/client
 - bcrypt
 - cors
@@ -33,6 +34,7 @@
 - uuid
 - wait-port
 - winston
+- winston-daily-rotate-file
 - yamljs
 - zod
 
@@ -58,7 +60,19 @@
 - docker-compose.yml
 - dockerfile
 - docs/
-  - swagger.yaml
+  - components/
+    - security-scheme.yaml
+  - openapi.yaml
+  - paths/
+    - auth/
+      - forget-password.yaml
+      - login.yaml
+      - register.yaml
+      - reset-password.yaml
+      - upload-national-id.yaml
+    - users/
+      - admin-user-verifications.yaml
+      - get-users.yaml
 - generated/
   - prisma/
     - client.d.ts
@@ -87,6 +101,14 @@
     - wasm.d.ts
     - wasm.js
 - logs/
+  - 2025-08-10-combined.log.gz
+  - 2025-08-10-error.log
+  - 2025-08-11-combined.log
+  - 2025-08-11-error.log
+  - 2025-08-14-combined.log
+  - 2025-08-14-error.log
+  - 2025-08-15-combined.log
+  - 2025-08-15-error.log
   - combined.log
   - error.log
 - package-lock.json
@@ -98,6 +120,10 @@
     - 20250810143129_add_reset_code/
       - migration.sql
     - 20250810143517_changed_thetypeof_reset/
+      - migration.sql
+    - 20250814205330_add_national_id_validation/
+      - migration.sql
+    - 20250814210250_made_id_optional/
       - migration.sql
     - migration_lock.toml
   - schema.prisma
@@ -124,7 +150,11 @@
       - auth.validators.ts
     - bootstrap.ts
     - users/
-
+      - user.controller.ts
+      - user.routes.ts
+      - user.service.ts
+      - user.types.ts
+      - user.validators.ts
   - server.ts
   - types/
     - express/
@@ -133,10 +163,16 @@
   - utils/
     - AppError.ts
     - logger.ts
+    - prismaQueryBuilder.ts
+    - responseFormatter.ts
   - views/
     - emails/
       - resetPassword.ejs
 - tsconfig.json
+- uploads/
+  - verifications/
+    - 0eb3c05f-070a-4d15-9d67-503627d9140f.jpg
+    - 54561090-a61c-4d09-92be-b77f5b9a92e7.jpg
 ```
 
 ## 📜 Scripts
@@ -148,7 +184,7 @@
 - `start:dev`: wait-port db:5432 && npx prisma migrate deploy && npm run dev 
 
 ## 👤 Author
-- Justmahmoud31
+- jm31,mohamed Tealab
 
 ## 📝 License
 - ISC

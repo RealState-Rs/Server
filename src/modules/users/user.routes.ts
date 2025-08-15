@@ -6,8 +6,8 @@ import { authMiddleware, roleGuard } from "../../middlewares/auth.middleware";
 const router = Router()
 
 
-router.get('/', authMiddleware,roleGuard(Role.ADMIN, Role.SUPERADMIN), userController.getAllUsers);
-router.get('/user-profile', authMiddleware,roleGuard(Role.SELLER, Role.BUYER,Role.UN_VERIFIEDUSER), userController.getUserProfile);
-
+router.get('/', authMiddleware, roleGuard(Role.ADMIN, Role.SUPERADMIN), userController.getAllUsers);
+router.get('/user-profile', authMiddleware, roleGuard(Role.SELLER, Role.BUYER, Role.UN_VERIFIEDUSER), userController.getUserProfile);
+router.get('/admin/user-verifications', authMiddleware, roleGuard(Role.SUPERADMIN, Role.ADMIN), userController.getUsersVerifications);
 
 export default router;

@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -23,18 +17,52 @@ enum Role {
   BLOCKED
 }
 
+enum NationalIdStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model NationalIdValidation {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  frontImageUrl    String
+  backImageUrl     String?
+  nationalIdNumber String?
+
+  status ValidationStatus @default(PENDING)
+  reason String? // For rejection reason
+
+  createdAt  DateTime  @default(now())
+  reviewedAt DateTime?
+}
+
+enum ValidationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
-  id                 Int       @id @default(autoincrement())
-  firstName          String
-  lastName           String
-  userEmail          String    @unique
-  userPhoneNumber    String
-  nationalIdFront    String?
-  nationalIdBack     String?
-  nationalIdNumber   String?   @unique
-  userHashedPassword String
-  role               Role
-  resetCode          String?
-  resetCodeExpiry    DateTime?
-  createdAt          DateTime  @default(now())
+  id                        Int              @id @default(autoincrement())
+  firstName                 String
+  lastName                  String
+  userEmail                 String           @unique
+  userPhoneNumber           String
+  nationalIdFront           String?
+  nationalIdBack            String?
+  nationalIdNumber          String?          @unique
+  nationalIdStatus          NationalIdStatus @default(PENDING)
+  nationalIdVerifiedBy      Int? // ID of admin who verified
+  nationalIdVerifiedAt      DateTime? // Date/time of verification
+  nationalIdRejectionReason String? // Reason if rejected
+  userHashedPassword        String
+  role                      Role
+  resetCode                 String?
+  resetCodeExpiry           DateTime?
+  createdAt                 DateTime         @default(now())
+
+  NationalIdValidation NationalIdValidation[]
 }

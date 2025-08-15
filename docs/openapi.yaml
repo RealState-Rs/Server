@@ -1,0 +1,38 @@
+openapi: 3.1.0
+info:
+  title: Real Estate APIs
+  version: 1.0.0
+  description: API documentation for Real Estate platform
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+
+security:
+  - bearerAuth: []   # global security
+
+components:
+  securitySchemes:
+    bearerAuth:      # fixed name to match lowercase usage
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /auth/register:
+    $ref: './paths/auth/register.yaml'
+  /auth/login:
+    $ref: './paths/auth/login.yaml'
+  /auth/forget-password:
+    $ref: './paths/auth/forget-password.yaml'
+  /auth/reset-password:
+    $ref: './paths/auth/reset-password.yaml'
+  /auth/upload-national-id:
+    $ref: './paths/auth/upload-national-id.yaml'
+  /users:
+    $ref: './paths/users/get-users.yaml'
+  /users/admin/user-verifications:
+    $ref: './paths/users/admin-user-verifications.yaml'

@@ -1,0 +1,40 @@
+post:
+  summary: Register a new user
+  tags:
+    - Auth
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - firstName
+            - lastName
+            - userEmail
+            - password
+          properties:
+            firstName:
+              type: string
+              example: John
+            lastName:
+              type: string
+              example: Doe
+            userEmail:
+              type: string
+              example: john@example.com
+            password:
+              type: string
+              format: password
+              example: Passw0rd!
+            userPhoneNumber:
+              type: string
+              example: "+123456789"
+            nationalIdNumber:
+              type: string
+              example: "30303521400797"
+  responses:
+    "201":
+      description: User registered successfully
+    "400":
+      description: Invalid input or already exists

@@ -1,0 +1,95 @@
+get:
+  summary: Get all national ID verifications
+  description: Retrieve a paginated list of national ID verification records with optional filtering.
+  tags:
+    - Users
+  security:
+    - bearerAuth: []
+  parameters:
+    - in: query
+      name: page
+      schema:
+        type: integer
+        minimum: 1
+      description: Page number for pagination.
+    - in: query
+      name: limit
+      schema:
+        type: integer
+        minimum: 1
+      description: Number of items per page.
+    - in: query
+      name: userId
+      schema:
+        type: string
+      description: Filter by user ID.
+    - in: query
+      name: nationalIdNumber
+      schema:
+        type: string
+      description: Filter by national ID number.
+    - in: query
+      name: status
+      schema:
+        type: string
+      description: Filter by verification status.
+    - in: query
+      name: createdAt
+      schema:
+        type: string
+        format: date-time
+      description: Filter by creation date.
+    - in: query
+      name: reviewedAt
+      schema:
+        type: string
+        format: date-time
+      description: Filter by review date.
+  responses:
+    "200":
+      description: Successful retrieval of verification records.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    userId:
+                      type: string
+                    id:
+                      type: string
+                    nationalIdNumber:
+                      type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+                    status:
+                      type: string
+                    reviewedAt:
+                      type: string
+                      format: date-time
+                    nationalIdFront:
+                      type: string
+                      format: uri
+                    nationalIdBack:
+                      type: string
+                      format: uri
+              pagination:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+                  totalPages:
+                    type: integer
+    "400":
+      description: Invalid request parameters.
+    "500":
+      description: Internal server error.

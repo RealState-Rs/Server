@@ -22,3 +22,9 @@ export interface resetPasswordDTO {
   newPassword : string;
   userEmail : string;
 }
+export interface uploadNationalIdDTO {
+  nationalIdFront : string;
+  nationalIdBack : string;
+  userEmail : string;
+  nationalIdNumber : string;
+}

@@ -6,6 +6,7 @@ import {
     LoginDTO,
     forgetPasswordDTO,
     resetPasswordDTO,
+    uploadNationalIdDTO,
 } from "./auth.types";
 import AppError from "../../utils/AppError";
 import { sendEmailTemplate } from "../../config/sendMail";
@@ -62,7 +63,7 @@ export const login = async (data: LoginDTO) => {
     if (!user || !(await bcrypt.compare(data.password, user.userHashedPassword))) {
         throw new AppError("Invalid credentials", 401);
     }
-    if (user.role === "BLOCKED") {
+    if (user.role === "BLOCKED" as any) {
         throw new AppError("User is blocked", 401);
     }
     return {
@@ -123,4 +124,32 @@ export const resetPassword = async (data: resetPasswordDTO) => {
     });
 
     return { message: "Password updated successfully" };
+};
+export const uploadNationalId = async (data: uploadNationalIdDTO) => {
+  // 1. Check if user exists
+  const user = await prisma.user.findUnique({
+    where: { userEmail: data.userEmail },
+  });
+  if (!user) {
+    throw new AppError("User Not Found", 404);
+  }
+
+  // 2. Create a new validation record
+  const validation = await prisma.nationalIdValidation.create({
+    data: {
+      userId: user.id,
+      frontImageUrl: data.nationalIdFront,
+      backImageUrl: data.nationalIdBack,
+      nationalIdNumber: data.nationalIdNumber, 
+      status: "PENDING",
+    },
+  });
+
+  // 3. Optionally update user status to PENDING
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { nationalIdStatus: "PENDING" },
+  });
+
+  return validation;
 };

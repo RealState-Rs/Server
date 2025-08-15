@@ -9,6 +9,8 @@ interface JwtPayload {
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     try {
+        console.log(req.headers.authorization);
+        
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             throw new AppError("Unauthorized", 401);
@@ -17,11 +19,10 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         const token = authHeader.split(" ")[1];
         const secret = process.env.JWT_SECRET!;
         const decoded = jwt.verify(token, secret) as JwtPayload;
-
         (req as any).user = decoded; 
         next();
     } catch (error) {
-        console.error("JWT verify error:", error);
+        // console.error("JWT verify error:", error);
         next(new AppError("Unauthorized", 401));
     }
 };

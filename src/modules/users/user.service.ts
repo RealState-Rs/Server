@@ -58,7 +58,7 @@ export const getUserProfile = async (userId: number) => {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
-        id: true,   
+        id: true,
         userEmail: true,
         role: true,
         firstName: true,
@@ -67,7 +67,7 @@ export const getUserProfile = async (userId: number) => {
         nationalIdBack: true,
         createdAt: true,
       },
-    }); 
+    });
     if (!user) {
       throw new AppError("User not found", 404);
     }
@@ -81,9 +81,58 @@ export const getUserProfile = async (userId: number) => {
   }
 };
 
+export const getAllVerifications = async (query: Record<string, any>) => {
+  try {
+    const page = Number(query.page) > 0 ? Number(query.page) : 1;
+    const limit = Number(query.limit) > 0 ? Number(query.limit) : 10;
 
-// block user (get the userId , action  from the body  , update on prisma the role to blocked , return a message that the user is blocked)
-// update user profile
+    const prismaQuery = buildPrismaQuery({
+      query,
+      allowedFilters: ["userId", "userId", "nationalIdNumber", "status", "createdAt", "reviewedAt"],
+      page,
+      limit,
+    });
+    const defaultSelectFields = {
+      userId: true,
+      id: true,
+      nationalIdNumber: true,
+      createdAt: true,
+      status: true,
+      reviewedAt: true,
+      frontImageUrl: true,
+      backImageUrl: true,
+    };
 
-
-
+    const select = prismaQuery.select ?? defaultSelectFields;
+    const [verifications, total] = await Promise.all([
+      prisma.nationalIdValidation.findMany({
+        ...prismaQuery,
+        select: {
+          ...defaultSelectFields,
+          user: {
+            select: {
+              id: true,
+              userEmail: true,
+              firstName: true,
+              role: true,
+              lastName : true,
+            }
+          }
+        },
+      }),
+      prisma.nationalIdValidation.count({ where: prismaQuery.where }), 
+    ]);
+    return {
+      data: verifications,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.max(1, Math.ceil(total / limit)),
+      },
+    };
+  } catch (error) {
+    console.log(error);
+    throw new AppError(`error ${error}`, 500);
+  }
+}
