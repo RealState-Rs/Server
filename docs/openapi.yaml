@@ -36,3 +36,5 @@ paths:
     $ref: './paths/users/get-users.yaml'
   /users/admin/user-verifications:
     $ref: './paths/users/admin-user-verifications.yaml'
+  /upload/local:
+    $ref: './paths/upload/upload-local.yaml'

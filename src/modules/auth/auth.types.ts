@@ -23,8 +23,8 @@ export interface resetPasswordDTO {
   userEmail : string;
 }
 export interface uploadNationalIdDTO {
-  nationalIdFront : string;
-  nationalIdBack : string;
+  backImageId : string;
+  frontImageId : string;
   userEmail : string;
   nationalIdNumber : string;
 }

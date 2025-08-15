@@ -25,8 +25,8 @@ export const resetPasswordSchema = z.object({
   userEmail: z.string().email()
 });
 export const nationalIdUploadSchema = z.object({
-  nationalIdFront: z.string().min(1, "Front image is required"),
-  nationalIdBack: z.string().min(1, "Back image is required"),
+  backImageId: z.string().min(1, "Front image is required"),
+  frontImageId: z.string().min(1, "Back image is required"),
   nationalIdNumber: z.string(),
   userEmail: z.string().email(),
 })

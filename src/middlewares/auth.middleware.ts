@@ -8,9 +8,7 @@ interface JwtPayload {
 }
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    try {
-        console.log(req.headers.authorization);
-        
+    try {        
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             throw new AppError("Unauthorized", 401);

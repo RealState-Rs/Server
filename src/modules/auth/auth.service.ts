@@ -134,18 +134,36 @@ export const uploadNationalId = async (data: uploadNationalIdDTO) => {
     throw new AppError("User Not Found", 404);
   }
 
-  // 2. Create a new validation record
+  // 2. Validate that the front and back images exist in File table
+  const frontImage = await prisma.file.findUnique({
+    where: { id: data.frontImageId },
+  });
+  if (!frontImage) {
+    throw new AppError("Front image file not found", 400);
+  }
+
+  let backImage = null;
+  if (data.backImageId) {
+    backImage = await prisma.file.findUnique({
+      where: { id: data.backImageId },
+    });
+    if (!backImage) {
+      throw new AppError("Back image file not found", 400);
+    }
+  }
+
+  // 3. Create a new validation record linking to File IDs
   const validation = await prisma.nationalIdValidation.create({
     data: {
       userId: user.id,
-      frontImageUrl: data.nationalIdFront,
-      backImageUrl: data.nationalIdBack,
-      nationalIdNumber: data.nationalIdNumber, 
+      frontImageId: data.frontImageId,
+      backImageId: data.backImageId || null,
+      nationalIdNumber: data.nationalIdNumber,
       status: "PENDING",
     },
   });
 
-  // 3. Optionally update user status to PENDING
+  // 4. Update user status to PENDING
   await prisma.user.update({
     where: { id: user.id },
     data: { nationalIdStatus: "PENDING" },

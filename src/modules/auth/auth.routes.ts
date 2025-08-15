@@ -8,13 +8,6 @@ router.post("/register", AuthController.register);
 router.post("/login", AuthController.login);
 router.post('/forget-password', AuthController.forgetPassword);
 router.post('/reset-password', AuthController.resetPassword);
-router.post(
-  "/upload-national-id",
-  uploadDynamic("verifications").fields([
-    { name: "nationalIdFront", maxCount: 1 },
-    { name: "nationalIdBack", maxCount: 1 },
-  ]),
-  AuthController.uploadNationalId
-);
+router.post("/upload-national-id",AuthController.uploadNationalId);
 
 export default router;

@@ -28,21 +28,45 @@ model NationalIdValidation {
   userId Int
   user   User @relation(fields: [userId], references: [id])
 
-  frontImageUrl    String
-  backImageUrl     String?
+  frontImageId String @default("null")
+  frontImage   File   @relation("FrontImageRelation", fields: [frontImageId], references: [id])
+
+  backImageId String? @default("null")
+  backImage   File?   @relation("BackImageRelation", fields: [backImageId], references: [id])
+
   nationalIdNumber String?
 
   status ValidationStatus @default(PENDING)
-  reason String? // For rejection reason
+  reason String?
 
   createdAt  DateTime  @default(now())
   reviewedAt DateTime?
+}
+
+model File {
+  id           String   @id @default(uuid())
+  type         FileType
+  url          String // local path or S3 URL
+  originalName String
+  mimeType     String
+  size         Int
+  createdAt    DateTime @default(now())
+
+  frontImageUsages NationalIdValidation[] @relation("FrontImageRelation")
+  backImageUsages  NationalIdValidation[] @relation("BackImageRelation")
 }
 
 enum ValidationStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum FileType {
+  VERIFICATION
+  PROPERTY
+  AVATAR
+  DOCUMENT
 }
 
 model User {
