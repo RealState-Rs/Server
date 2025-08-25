@@ -1,0 +1,72 @@
+put:
+  summary: Update logged-in user profile
+  description: Update profile information for the currently authenticated user.
+  tags:
+    - Users
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            firstName:
+              type: string
+              example: Ali
+            lastName:
+              type: string
+              example: Hassan
+            userEmail:
+              type: string
+              format: email
+              example: ali@example.com
+          additionalProperties: true
+  responses:
+    "200":
+      description: User profile updated successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: User profile updated successfully
+              data:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  userEmail:
+                    type: string
+                    format: email
+                    example: ali@example.com
+                  firstName:
+                    type: string
+                    example: Ali
+                  lastName:
+                    type: string
+                    example: Hassan
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: 2025-08-20T12:00:00Z
+    "500":
+      description: Server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: Error updating user profile
