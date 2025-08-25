@@ -1,0 +1,77 @@
+patch:
+  summary: Block a user by ID
+  description: Block a user by updating their role to `BLOCKED`. Only `ADMIN` and `SUPERADMIN` can perform this action.
+  tags:
+    - Users
+  security:
+    - bearerAuth: []
+  parameters:
+    - in: path
+      name: userId          # ← خليها زي الكود
+      required: true
+      description: The ID of the user to block
+      schema:
+        type: integer
+        example: 5
+  responses:
+    "200":
+      description: User blocked successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: User blocked successfully
+              data:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 5
+                  userEmail:
+                    type: string
+                    example: user@example.com
+                  firstName:
+                    type: string
+                    example: John
+                  lastName:
+                    type: string
+                    example: Doe
+                  role:
+                    type: string
+                    example: BLOCKED
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: 2025-08-20T12:00:00Z
+    "400":
+      description: Invalid request (e.g. missing ID)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: User ID is required
+    "500":
+      description: Server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: Error blocking user

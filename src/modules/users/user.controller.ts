@@ -27,3 +27,24 @@ export const getUsersVerifications = async (req: Request, res: Response) => {
         return new AppError("Error", 500);
     }
 }
+export const updateUserProfile = async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const updatedUser = await userServices.updateUserProfile(userId, req.body);
+        return res.json(formatResponse(true, "User profile updated successfully", updatedUser));
+    } catch (error) {
+        return new AppError("Error updating user profile", 500);
+    }
+}
+export const blockUser = async (req: Request, res: Response) => {
+    try {
+        const userId = parseInt(req.params.userId);
+        if (!userId) {
+            return res.status(400).json(formatResponse(false, "User ID is required"));
+        }
+        const updatedUser = await userServices.blockUser(userId, req.body);
+        return res.json(formatResponse(true, "User blocked successfully", updatedUser));
+    } catch (error) {
+        return new AppError("Error blocking user", 500);
+    }
+}
